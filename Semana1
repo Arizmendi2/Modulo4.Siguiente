@@ -1,0 +1,75 @@
+##SEMANA1##
+##PRACTICA DE REGRESION LINEAL
+
+#IMPORTAR TABLA DE DATOS
+library(readxl)
+base1 <- read_excel("Diplomado.Modulo4/base1.xlsx")
+View(base1)
+
+
+##Caracteríticas de los objetos en R
+str(base1)
+
+
+#Analisis Exploratorio
+#Diagrama de dispersión
+x<- base1$`Precio Vivienda`
+y<- base1$IMORA
+
+##GrAFICO DE DISPERSION
+plot(x,y,main="Diagrama  de dispersión", xlab = "Precio vivienda", ylab = "IMOR")
+
+#Calculo de correlacion
+cor(x,y)
+
+#ajuste del modelo de regresion
+?lm
+modelo1<- lm(y ~ x)
+str(modelo1)
+summary(modelo1)
+
+#coeficientes del modelo
+beta_cero<- modelo1$coefficients[1]
+beta_uno<- modelo1$coefficients[2]
+
+#grafico del modelo
+plot(x,y,main = "Diagrama de dispersión", xlab= "precio Vivienda", ylab = "IMOR")
+lines(x, beta_cero+beta_uno*x,col="red", type = "l")
+
+lines(x,modelo1$fitted.values,col= "blue", type = "l")
+lines(x,predict(modelo1))
+
+#Verificar si el modelo es bueno (validad los supuestos)
+#1. verificar independencia
+#2. normalidad
+#3. Media cero
+#4. Varianza constante
+
+#1.Verificar independencia
+#forma visual
+errores<- modelo1$residuals
+plot(errores, main = "errores", type = "b")
+#por la apariancia hay dependencia ya que los errores no se ven distribuidos de 
+#forma tan aleatoria
+#forma técnica, prueba de hipótesis
+dwtest(y~ x)
+#el p-value es menor a .05, por lo que hay dependencia
+
+
+#verificar varianza constente
+plot(modelo1$fitted.values, modelo1$residuals, main=  "Varianza constante")
+#en aparianza no hya patron, lo que de traduce en varianza
+#constante, se comprueba con la prueba de hipotesis
+
+#forma técnica con prueba de hipótesis
+bptest(y~ x)
+#el p-value indica que hay var constante
+
+
+#2. Normalidad y Media cero
+#forma visual
+plot(modelo1)
+#con base en q-q plot no hay normalidad
+# y ahora se probará cpn el test
+library(normtest)
+ad.test(modelo1$residuals)
