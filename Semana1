@@ -82,8 +82,8 @@ plot(modelo1$fitted.values, modelo1$residuals, main=  "Varianza constante")
 
 #forma técnica con prueba de hipótesis
 bptest(y~ x)
-#el p-value indica que hay var constante
-
+#el p-value indica que hay var constante, ya que es mayor a 0.05, es lo que queremos
+#BP = 0.223, df = 1, p-value = 0.6368
 
 #2. Normalidad y Media cero
 #forma visual
