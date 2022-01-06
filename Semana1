@@ -18,15 +18,34 @@ y<- base1$IMORA
 
 ##GrAFICO DE DISPERSION
 plot(x,y,main="Diagrama  de dispersión", xlab = "Precio vivienda", ylab = "IMOR")
+#aqui podemos establecer la correlación existente entre las variables
 
 #Calculo de correlacion
 cor(x,y)
+# -0.4757471, en valor abosluto es mayoir que 0.4, por lo que puedo ajustar el modelo.
 
 #ajuste del modelo de regresion
 ?lm
 modelo1<- lm(y ~ x)
 str(modelo1)
 summary(modelo1)
+
+#R^2 := El porcentaje de la informaciÃ³n explicada por el modelo 
+#R^2=x% , entonces, el modelo explica el x% de los datos
+
+#Residuals:
+#  Min        1Q    Median        3Q       Max 
+#-0.036940 -0.021754  0.001703  0.019852  0.040471 
+
+#Coefficients:
+#  Estimate Std. Error t value Pr(>|t|)    
+#(Intercept)  0.18481    0.01660  11.132  1.6e-13 ***  AQUI EL P-VALOR ES MENOR A O.05, ENTONCES Bo  ES SIGNIFICATIVO
+#  x           -0.01254    0.00376  -3.334  0.00192 ** TAMBIEN ES MENOR A 0.05, POR LO QUE ES SIGNIFICATIVO
+#Residual standard error: 0.02319 on 38 degrees of freedom
+#Multiple R-squared:  0.2263,	Adjusted R-squared:  0.206 
+#F-statistic: 11.12 on 1 and 38 DF,  p-value: 0.001918
+
+
 
 #coeficientes del modelo
 beta_cero<- modelo1$coefficients[1]
