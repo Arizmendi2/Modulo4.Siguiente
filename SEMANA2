@@ -1,0 +1,108 @@
+####REGRESION MULTIPLE PRACTICA############
+
+#TD= TASA DE DESEMPLEO
+#PIB
+#INFLACIÓN
+#TC= TIPO DE CAMBIO
+#Tasa Cete
+#Precio de Vivienda
+#IM= iNDICE DE MOROSIDAD= C.VENCIDA/C.TOTAL
+
+library(lmtest)
+library(nortest)
+library(car)
+
+str(base1)
+
+#Paso 1. Análisis exploratorio
+#1.1 Diagrama de dispersion
+x1<- base1$`Precio Vivienda`
+x2<- base1$TD
+x3<- base1$PIB
+x4<- base1$Inflación
+x5<- base1$`Tasa Cete`
+x6<- base1$TC
+y<- base1$IMORA
+
+pairs(base1[,c(2:8)],  main = "Diagramas de Dispersion")
+par(mfrow=c(3,2))
+plot(x1,y,main="Diagrama  de dispersión", xlab = "Precio vivienda", ylab = "IMOR")
+plot(x2,y,main="Diagrama  de dispersión", xlab = "Tasa de desempleo", ylab = "IMOR")
+plot(x3,y,main="Diagrama  de dispersión", xlab = "PIB", ylab = "IMOR")
+plot(x4,y,main="Diagrama  de dispersión", xlab = "Inflación", ylab = "IMOR")
+plot(x5,y,main="Diagrama  de dispersión", xlab = "Tasa Cete", ylab = "IMOR")
+plot(x6,y,main="Diagrama  de dispersión", xlab = "Tipo de Cambio", ylab = "IMOR")
+
+#podemos intuir una relación con la TASA CETE Y TC
+base_ok<-base1[,c(2:6)]
+base_ok
+#Calculo de correlacion
+cor(base_ok)
+cor(x1,y)
+cor(x2,y)
+par(mfrow=c(1,1))
+corrplot(cor(base_ok), method = "number", type = "upper")
+#espero que cuando haga el modelo, la Tasa Cete, el PIB, Y EL Precios
+#a la vivienda, son las que aportarán una mayor información,ya que presentan una 
+#correlación significativa, mientras que la TD, inflación y el tipo de cambio
+#podría sacarlos apra ajustar el modelo.
+
+
+
+#PASO2. AJUSTE DE MODELO
+modelo2<- lm(y ~ x1+ x2+x3+x4+x5+x6)
+modelo21<- lm(y ~ . , data = base_ok) # esta sería otra forma
+str(modelo2)
+#2.2 Revizar coeficientes del modelo
+summary(modelo2)
+
+modelo3<- lm(y ~  x3+ x5)
+summary(modelo3)
+#me quedaría con el pIB y Tasa Cete, ya wue son la significactivas así como 
+#un R^2 del 95% que me ofrece la explicación del modelo. 
+
+#Grafica del ajuste del modelo
+plot(modelo3$fitted.values,y, xlab = "Valores ajustados", main= "Gráfico de ajuste", ylab = "Valores reales")
+lines(y, y, col="red", type = "l")
+#hay puntos despegados de la liena, se puede asumir que que el modelo
+#es bueno para explicar, pero  tal vez no tan bueno para pronosticar.
+
+
+#PASO3. Verificar si el modelo es bueno (validar los supuestos)
+#1. verificar independencia
+#2. normalidad
+#3. Media cero
+#4. Varianza constante
+
+#1.Verificar independencia
+#forma visual
+errores<- modelo3$residuals
+plot(errores, main = "errores")
+# se nota un patrón, lo que nos puede indicar dependencia
+
+#forma técnica, prueba de hipótesis
+?dwtest
+dwtest(y~ x3+ x5)
+# el p-value es menor a .05, por lo que hay dependencia y violo el supuesto
+#DW = 0.86796, p-value = 6.851e-06
+#alternative hypothesis: true autocorrelation is greater than 0
+
+
+#2. Validación de normalidad y varianza constante
+#Forma gráfica, con el q-q plot
+plot(modelo3)
+#podemos inferir porblemas de heterosedasticidad y existencia de normalidad
+
+#forma técnica
+ad.test(modelo3$residuals)
+#A = 0.70996, p-value = 0.05893
+#el p-value es mayor que que 0.05, por lo que hay normalidad
+bptest(y~ x3+ x5)
+#data:  y ~ x3 + x5
+#BP = 0.82408, df = 2, p-value = 0.6623
+# el p-value es mayor a 0.05, por lo que hay homocedasticidad por lo que 
+#se tiene varianza constante
+
+#De manera general, tenenos normalidad y varianza constente, mientras que 
+#que tiene una dependnecia en los errores, por lo que consenraremos que el 
+#modelo es bueno para expliocar, pero no tanto para pronosticar. 
