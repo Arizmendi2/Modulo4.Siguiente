@@ -90,5 +90,5 @@ bptest(y~ x)
 plot(modelo1)
 #con base en q-q plot no hay normalidad
 # y ahora se probará cpn el test
-library(normtest)
+library(nortest)
 ad.test(modelo1$residuals)
