@@ -1,0 +1,80 @@
+######################## Ejemplo ANOVA #########################
+################################################################
+     
+ #Preparamos los datos       
+  grams<- c(64,72,68,77,56,95, 78, 91, 97, 82, 85, 77,75,93,78,71,63,76,55,66,49,64,70,68)
+  fattype<- c("A", "A", "A", "A", "A", "A", "B", "B", "B", "B", "B", "B", "C", "C", "C", "C", "C", "C","D","D","D","D","D","D")
+  tabla<-data.frame(factor(fattype),grams)
+  tabla
+ 
+ #1.- AnÃ¡lisis descriptivo
+  
+  #GrÃ¡ficas
+   boxplot(grams ~ fattype, xlab='Tipo de Grasa', ylab='Grasa absorbida', las=1, col=2:5)
+   stripchart(grams ~ fattype, xlab='Tipo de Grasa', ylab='Grasa absorbida',
+                 vertical=TRUE,cex=1.2,pch=16, las=1, col=2:5)
+   #se nota que se tralapa hasta cierto puento el grupo A con el C
+  #Valores numÃ©ricos
+   grasa_A<-subset(tabla,factor.fattype.=="A")[,2]
+   grasa_B<-subset(tabla,factor.fattype.=="B")[,2]
+   grasa_C<-subset(tabla,factor.fattype.=="C")[,2]
+   grasa_D<-subset(tabla,factor.fattype.=="D")[,2]
+  
+  #Resumen de estadÃ­sticos
+   estadisticos<-matrix(0,nrow=4,ncol=6)
+   rownames(estadisticos)<-c("Grasa A","Grasa B","Grasa C","Grasa D")
+   colnames(estadisticos)<-c("Min","Cuantil 1","Mediana","Media","Cuantil 3","Max")
+   estadisticos["Grasa A",]<-summary(grasa_A)
+   estadisticos[2,]<-summary(grasa_B)
+   estadisticos["Grasa C",]<-summary(grasa_C)
+   estadisticos[4,]<-summary(grasa_D)
+  estadisticos
+  #En apariencia el tipo de grasa si tiene un impacto en la cantidad de grasa 
+  #absorbida por las donas
+  
+ #2.- Ajustes del modelo e interpretaciÃ³n
+   attach(tabla)
+   modelo_anova<-lm(grams ~ factor.fattype.,data=tabla)
+   summary(modelo_anova)
+   
+   #Dado que el modelo total es significativo puedo concluir
+   #que existe un impacto significativo del tipo de grasa con respecto a 
+   #la cantidad de grasa absorbida
+   
+  # Grasa(Tipo)=72+13*I(Tipo=B)+4*I(Tipo=C)-10*I(Tipo=D)
+   
+  # // I(Tipo=X)=1 si Tipo=X o 0 si no//
+     
+  #   Grasa(A)=72+0=    72
+  #   Grasa(B)=72+13=   85
+  #   Grasa(C)=72+4=    76
+  #   Grasa(D)=72-10=   62
+   
+  # Dado que el nivel B fue significativo, podemos concluir que el grupo B es aquel 
+  # que permite diferenciar de mejor forma los grupos
+   
+ #3.- Varificar los supuestos del modelo
+   
+   #Independencia
+    errores<-modelo_anova$residuals
+    plot(errores)
+    ?dwtest
+    dwtest(grams ~ factor.fattype.,data=tabla)
+    #Dado que el p-value es mayor a 0.05, entonces tenemos independencia
+  #Durbin-Watson test
+    #    data:  grams ~ factor.fattype.
+    #DW = 2.5421, p-value = 0.7737
+    
+    
+   #Varianza constante y normalidad
+    plot(modelo_anova)
+    bptest(grams ~ factor.fattype.,data=tabla)
+    ad.test(errores)
+    
+  #Mi modelo cumple con todos los supuestos :D
+  
+  #Nota: En caso de que no se hubiera cumplido alguno de los supuestos
+  #el siguiente paso hubiera sido corregirlo a travÃ©s de Box-Cox
+  #Cabe seÃ±alar que en esta no aplican las pruebas de especificaciÃ³n del modelo
+  #dado que la variable explicativas es categÃ³rica
+    
